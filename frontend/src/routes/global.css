@@ -1,0 +1,11 @@
+* {
+	font-family: 'Inter var', 'ui-sans-serif', 'system-ui' ,'sans-serif' , 'Apple Color Emoji' , 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+}
+
+body, html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
