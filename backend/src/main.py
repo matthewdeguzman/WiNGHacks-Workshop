@@ -1,8 +1,10 @@
+import os
 from typing import Annotated
+from heapq import nlargest
 
 import requests
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from fastapi import FastAPI, File, Body
+from fastapi import FastAPI, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import dotenv_values
@@ -51,14 +53,11 @@ def query(payload, endpoint):
     return response.json()
 	
 
-@app.post("/{model_name}")
-def get_response(model_name: str,
-                       file: Annotated[bytes, File()],
-                       user_prompt: Annotated[str, Body()]
-                    ):
+@app.post("/prompt")
+async def get_prompt(file: Annotated[UploadFile, Form()], user_prompt: Annotated[str, Form()]):
     """Get the response from the model."""
-    with open("./user_file.pdf", "wb") as f:
-        f.write(file)
+    with open("./user_file.pdf", "wb+") as f:
+        f.write(await file.read())
 
     # Parse document
     documents: list[str] = [doc.page_content for doc in parse_and_split("./user_file.pdf")]
@@ -70,7 +69,7 @@ def get_response(model_name: str,
             "sentences": documents,
             },
     }, embedding_endpoint)
-    context: str = max(zip(output, documents), key=lambda x: x[0])[1]
+    context: str = "\n".join([p[1] for p in nlargest(3, zip(output, documents), key=lambda x: x[0])])
 
     # Prompt model
     response = query({
@@ -80,6 +79,7 @@ def get_response(model_name: str,
             }
         }, llm_endpoint)
 
+    os.remove("./user_file.pdf")
     return response[0]["generated_text"]
 
 if __name__ == "__main__":
