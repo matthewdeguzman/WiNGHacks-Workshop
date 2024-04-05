@@ -1,7 +1,13 @@
 <script lang="ts">
+	import MessageElement from '$lib/components/message.svelte';
+	import { type Message } from '$lib/message';
+	import { type LLMResponse } from '$lib/llm-response';
+
 	async function submitForm(event: Event) {
 		console.log('submitting form...');
 		event.preventDefault();
+		messages = [...messages, { content: textArea.value, isUser: true }];
+
 		const formData: FormData = new FormData();
 		console.log(textArea.value);
 		console.log(fileUpload.files);
@@ -16,8 +22,8 @@
 			});
 
             if (response.ok) {
-                const result = await response.json();
-                console.log('Success:', result);
+                const result: LLMResponse = await response.json();
+				messages = [...messages, { content: result.generated_text, isUser: false }];
                 // Handle success (e.g., show a success message)
             } else {
 				console.error('Server error:', await response.text());
@@ -44,30 +50,43 @@
 		}
 	}
 
+	let messages: Message[] = [];
+
+	$: messages = messages;
+
 	let fileUpload: HTMLInputElement;
 	let textArea: HTMLTextAreaElement;
 	let submitButton: HTMLButtonElement;
 </script>
 
-<div class="input-container">
-	<form class="input-wrapper" on:submit|preventDefault={submitForm}>
-		<div class="file">
-			<button class="upload-btn" on:click|preventDefault={fileClick}>
-				<img class="upload-img" src="/clip.svg" alt="attach files" />
+
+<div class="page-container">
+	<div class="message-container">
+		{#each messages as msg}
+			<MessageElement message={msg} />
+		{/each}
+	</div>
+
+	<div class="input-container">
+		<form class="input-wrapper" on:submit|preventDefault={submitForm}>
+			<div class="file">
+				<button class="upload-btn" on:click|preventDefault={fileClick}>
+					<img class="upload-img" src="/clip.svg" alt="attach files" />
+				</button>
+				<input bind:this={fileUpload} type="file" accept=".pdf" class="hidden"/>
+			</div>
+			<textarea 
+			on:keydown={textInputHandler}
+			  placeholder="Message LLM..." autocorrect="off" autocomplete="off" data-gramm="false" data-gramm_editor="false" 
+				data-enable-grammarly="false"
+			 maxlength="1000"
+			bind:this={textArea}
+			/>
+			<button on:click={submitForm} bind:this={submitButton} class="submit" type="submit">
+				<img class="send" src="/enter.svg" alt="send message" />
 			</button>
-			<input bind:this={fileUpload} type="file" accept=".pdf" class="hidden"/>
-		</div>
-		<textarea 
-		on:keydown={textInputHandler}
-		  placeholder="Message LLM..." autocorrect="off" autocomplete="off" data-gramm="false" data-gramm_editor="false" 
-			data-enable-grammarly="false"
-		 maxlength="1000"
-		bind:this={textArea}
-		/>
-		<button on:click={submitForm} bind:this={submitButton} class="submit" type="submit">
-			<img class="send" src="/enter.svg" alt="send message" />
-		</button>
-	</form>
+		</form>
+	</div>
 </div>
 
 <style>
@@ -86,7 +105,6 @@
 		display: flex;
 		flex-direction: row;
 		align-items: end;
-		height: 90vh;
 		text-align: center;
 	}
 
@@ -126,5 +144,17 @@
 	.upload-btn {
 		border: none;
 		background-color: transparent;
+	}
+
+	.message-container {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	.page-container {
+		height: 92vh;
+		display: grid;
+		grid-template-rows: auto 3rem;
 	}
 </style>

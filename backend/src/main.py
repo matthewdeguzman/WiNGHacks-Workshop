@@ -3,6 +3,7 @@ from typing import Annotated
 from heapq import nlargest
 
 import requests
+from pydantic import BaseModel
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from fastapi import FastAPI, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +12,7 @@ from dotenv import dotenv_values
 
 from load import parse_and_split
 
-config = dotenv_values(".env")
+config = dotenv_values("../.env")
 app = FastAPI()
 
 origins = [
@@ -47,6 +48,9 @@ Please answer the question regarding the context:
 """
 headers = {"Authorization": f"Bearer {config['HF_API_TOKEN']}"}
 
+class LLMResponse(BaseModel):
+    generated_text: str
+
 def query(payload, endpoint):
     """Query the model with the given payload"""
     response = requests.post(endpoint, headers=headers, json=payload)
@@ -54,8 +58,9 @@ def query(payload, endpoint):
 	
 
 @app.post("/prompt")
-async def get_prompt(file: Annotated[UploadFile, Form()], user_prompt: Annotated[str, Form()]):
+async def get_prompt(file: Annotated[UploadFile, Form()], user_prompt: Annotated[str, Form()]) -> LLMResponse:
     """Get the response from the model."""
+
     with open("./user_file.pdf", "wb+") as f:
         f.write(await file.read())
 
@@ -69,9 +74,11 @@ async def get_prompt(file: Annotated[UploadFile, Form()], user_prompt: Annotated
             "sentences": documents,
             },
     }, embedding_endpoint)
+
+    # Get the top 3 most relevant documents
     context: str = "\n".join([p[1] for p in nlargest(3, zip(output, documents), key=lambda x: x[0])])
 
-    # Prompt model
+    # Query model
     response = query({
         "inputs": prompt.format(context=context, user_prompt=user_prompt),
         "parameters": {
@@ -80,7 +87,7 @@ async def get_prompt(file: Annotated[UploadFile, Form()], user_prompt: Annotated
         }, llm_endpoint)
 
     os.remove("./user_file.pdf")
-    return response[0]["generated_text"]
+    return LLMResponse(generated_text=response[0]["generated_text"])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
