@@ -82,7 +82,8 @@ async def get_prompt(file: Annotated[UploadFile, Form()], user_prompt: Annotated
     response = query({
         "inputs": prompt.format(context=context, user_prompt=user_prompt),
         "parameters": {
-            "return_full_text": False
+            "return_full_text": False,
+            "max_new_tokens": 512
             }
         }, llm_endpoint)
 
