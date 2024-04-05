@@ -4,5 +4,7 @@
 	h1 {
 		margin-top: 1rem;
 		justify-self: center;
+		font-size: 2rem;
+		font-weight: bold;
 	}
 </style>

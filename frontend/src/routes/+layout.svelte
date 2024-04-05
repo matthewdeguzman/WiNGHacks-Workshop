@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Header from '$lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
 	import './reset.css';
 	import './global.css';
 </script>
@@ -9,7 +8,6 @@
 	<div class="content">
 		<Header />
 		<slot />
-		<Footer />
 	</div>
 </div>
 

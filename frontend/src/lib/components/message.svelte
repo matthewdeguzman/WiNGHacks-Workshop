@@ -21,4 +21,8 @@
 		font-weight: bold;
 		margin-bottom: 0.5rem;
 	}
+
+	.message {
+		line-height: 1.5;
+	}
 </style>

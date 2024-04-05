@@ -1,7 +1,9 @@
 <script lang="ts">
 	import MessageElement from '$lib/components/message.svelte';
+	import File from '$lib/components/file.svelte';
 	import { type Message } from '$lib/message';
 	import { type LLMResponse } from '$lib/llm-response';
+	import { uploadedFile } from '$lib/stores';
 
 	async function submitForm(event: Event) {
 		console.log('submitting form...');
@@ -50,13 +52,16 @@
 		}
 	}
 
-	let messages: Message[] = [];
+	function displayFile() {
+		$uploadedFile = true;
+	}
 
-	$: messages = messages;
 
 	let fileUpload: HTMLInputElement;
 	let textArea: HTMLTextAreaElement;
 	let submitButton: HTMLButtonElement;
+	let messages: Message[] = [];
+	$: messages = messages;
 </script>
 
 
@@ -68,28 +73,40 @@
 	</div>
 
 	<div class="input-container">
-		<form class="input-wrapper" on:submit|preventDefault={submitForm}>
-			<div class="file">
-				<button class="upload-btn" on:click|preventDefault={fileClick}>
-					<img class="upload-img" src="/clip.svg" alt="attach files" />
+		{#if $uploadedFile}
+			<File filename={fileUpload.files[0].name} file={fileUpload}/>
+		{/if}
+		<div class="input-area">
+			<form class="input-wrapper" class:display-file={$uploadedFile} on:submit|preventDefault={submitForm}>
+				<div class="file">
+					<button class="upload-btn" on:click|preventDefault={fileClick}>
+						<img class="upload-img" src="/clip.svg" alt="attach files" />
+					</button>
+					<input bind:this={fileUpload} on:change={displayFile} type="file" accept=".pdf" class="hidden"/>
+				</div>
+
+				<textarea 
+				on:keydown={textInputHandler}
+				  placeholder="Message LLM..." autocorrect="off" autocomplete="off" data-gramm="false" data-gramm_editor="false" 
+					data-enable-grammarly="false"
+				 maxlength="1000"
+				bind:this={textArea}
+				/>
+
+				<button on:click={submitForm} bind:this={submitButton} class="submit" type="submit">
+					<img class="send" src="/enter.svg" alt="send message" />
 				</button>
-				<input bind:this={fileUpload} type="file" accept=".pdf" class="hidden"/>
-			</div>
-			<textarea 
-			on:keydown={textInputHandler}
-			  placeholder="Message LLM..." autocorrect="off" autocomplete="off" data-gramm="false" data-gramm_editor="false" 
-				data-enable-grammarly="false"
-			 maxlength="1000"
-			bind:this={textArea}
-			/>
-			<button on:click={submitForm} bind:this={submitButton} class="submit" type="submit">
-				<img class="send" src="/enter.svg" alt="send message" />
-			</button>
-		</form>
+			</form>
+		</div>
 	</div>
 </div>
 
 <style>
+
+	.input-area {
+		width: 100%;
+		grid-row: 2;
+	}
 
 	.input-wrapper {
 		border: 1px solid black;
@@ -97,13 +114,12 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		width: 100%;
 		height: 2.5rem;
 	}
 
 	.input-container {
-		display: flex;
-		flex-direction: row;
+		display: grid;
+		grid-template-rows: repeat(2, 3rem);
 		align-items: end;
 		text-align: center;
 	}
@@ -153,7 +169,7 @@
 	}
 
 	.page-container {
-		height: 92vh;
+		height: 80vh;
 		display: grid;
 		grid-template-rows: auto 3rem;
 	}
