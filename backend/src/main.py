@@ -118,42 +118,24 @@ async def get_prompt(res: Response, llm: str,
     
     # Check if the user has uploaded a file
     if file:
+        pass
         # Save the file
-        with open("./user_file.pdf", "wb+") as f:
-            f.write(await file.read())
     
         # Parse document
-        documents: list[str] = [doc.page_content for doc in parse_and_split("./user_file.pdf")]
-        os.remove("./user_file.pdf")
     
         # Return document with highest similarity to user prompt
-        output: list[float] = query({
-            "inputs": {
-                "source_sentence": user_prompt,
-                "sentences": documents,
-                },
-        }, embedding_endpoint)
     
         # Get the top 3 most relevant documents
-        context: str = "\n".join([p[1] for p in nlargest(3, zip(output, documents), key=lambda x: x[0])])
-        prompt = file_prompt.format(name=llm, context=context, user_prompt=user_prompt)
     else:
+        pass
       # Create prompt without file context
-        prompt = no_file_prompt.format(name=llm, user_prompt=user_prompt)
     
     # Query LLM
     print(f"Querying {llm_endpoints[llm]}...")
-    response = query({
-        "inputs":  prompt,
-        "parameters": {
-            "return_full_text": False,
-            "temperature": 0.1,
-            "max_new_tokens": 512
-            }
-        }, llm_endpoints[llm])
-    print(response)
+    response = LLMResponse(generated_text="test")
+
     # Return llm response
-    return clean_output(LLMResponse(generated_text=response[0]["generated_text"]))
+    return clean_output(response)
     
 
 if __name__ == "__main__":
