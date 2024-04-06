@@ -1,40 +1,44 @@
 <script lang="ts">
+	import { v4 as uuidv4 } from 'uuid';
+	import { beforeUpdate, afterUpdate } from 'svelte';
 	import MessageElement from '$lib/components/message.svelte';
 	import File from '$lib/components/file.svelte';
 	import { type Message } from '$lib/message';
 	import { type LLMResponse } from '$lib/llm-response';
-	import { uploadedFile } from '$lib/stores';
+	import { uploadedFile, selectedModel } from '$lib/stores';
 
 	async function submitForm(event: Event) {
 		console.log('submitting form...');
 		event.preventDefault();
-		messages = [...messages, { content: textArea.value, isUser: true }];
+		messages = [...messages, { content: textArea.value, isUser: true, loading: false }];
 
 		const formData: FormData = new FormData();
 		console.log(textArea.value);
 		console.log(fileUpload.files);
 		formData.append('user_prompt', textArea.value);
-		formData.append('file', fileUpload.files[0], fileUpload.files[0].name);
+
+		if (fileUpload.files && fileUpload.files.length > 0) {
+			formData.append('file', fileUpload.files[0], fileUpload.files[0].name);
+		}
 
 		try {
-            // Send the form data to your server endpoint
-            const response = await fetch('http://localhost:8000/prompt/', {
+			messages = [...messages, { content: '...', isUser: false, loading: true }];
+			const response = await fetch('http://localhost:8000/prompt?llm='+$selectedModel, {
                 method: 'POST',
 				body: formData,
 			});
 
             if (response.ok) {
                 const result: LLMResponse = await response.json();
-				messages = [...messages, { content: result.generated_text, isUser: false }];
-                // Handle success (e.g., show a success message)
+				messages[messages.length - 1].loading = false;
+				messages[messages.length - 1].content = result.generated_text;
+				messages = messages;
             } else {
 				console.error('Server error:', await response.text());
                 console.error('Server error:', response.statusText);
-                // Handle server error (e.g., show an error message)
             }
         } catch (error) {
             console.error('Error:', error);
-            // Handle network error (e.g., show an error message)
         }
 	}
 
@@ -56,17 +60,36 @@
 		$uploadedFile = true;
 	}
 
+	beforeUpdate(() => {
+		if (chat) {
+			const scrollableDistance = chat.scrollHeight - chat.offsetHeight;
+			autoscroll = chat.scrollTop > scrollableDistance - 20;
+		}
+	});
+
+	afterUpdate(() => {
+		if (autoscroll) {
+			chat.scrollTo(0, chat.scrollHeight);
+		}
+	});	
+
 
 	let fileUpload: HTMLInputElement;
 	let textArea: HTMLTextAreaElement;
 	let submitButton: HTMLButtonElement;
+	let autoscroll: boolean = true;
+	let chat: HTMLElement;
 	let messages: Message[] = [];
 	$: messages = messages;
 </script>
 
 
 <div class="page-container">
-	<div class="message-container">
+	<div class="message-container" class:empty-container={messages.length === 0} bind:this={chat}>
+		{#if messages.length === 0}
+			<img class="winghacks-logo" src={$selectedModel + ".gif"} alt={"image of " + $selectedModel} />
+			<p class="blank-space">How can {$selectedModel} help you?</p>
+		{/if}
 		{#each messages as msg}
 			<MessageElement message={msg} />
 		{/each}
@@ -122,6 +145,7 @@
 		grid-template-rows: repeat(2, 3rem);
 		align-items: end;
 		text-align: center;
+		position: relative;
 	}
 
 	input[type="file"] {
@@ -167,11 +191,41 @@
 		flex-direction: column;
 		height: 100%;
 		overflow-y: scroll;
+		padding: 1.5rem;
 	}
 
 	.page-container {
 		height: 80vh;
 		display: grid;
 		grid-template-rows: auto 3rem;
+	}
+	@media (max-height: 800px) {
+		.page-container {
+			height: 75vh;
+			display: grid;
+			grid-template-rows: auto 3rem;
+		}
+	}
+	
+	@media (max-height: 600px) {
+		.page-container {
+			height: 65vh;
+			display: grid;
+			grid-template-rows: auto 3rem;
+		}
+	}
+
+	.empty-container {
+		justify-content: center;
+		align-items: center;
+	}
+
+	.winghacks-logo {
+		width: 10rem;
+		margin-bottom: 1rem;
+	}
+
+	.blank-space {
+		font-weight: bold;
 	}
 </style>

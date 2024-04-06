@@ -4,10 +4,6 @@
 	export let file: HTMLInputElement;
 	let displayClose: boolean = false;
 
-	if (filename.length > 16) {
-		filename = filename.slice(0, 16) + '...';
-	}
-
 	function closeFile() {
 		file.value = '';
 		$uploadedFile = false;
@@ -32,10 +28,10 @@
 		grid-template-columns: 1rem auto;
 		border: 1px solid black;
 		border-radius: 5px;
-		margin: 0.5rem 0;
 		width: 10rem;
 		padding: 0.3rem 0.2rem;
 		position: relative;
+		background: white;
 	}
 
 	.file-img {
@@ -70,6 +66,16 @@
 
 	.delete-img {
 		width: 1rem;
+	}
+
+	.file-name {
+		display: block;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		width: 7rem;
+		text-align: start;
+		margin-bottom: 0.2rem;
 	}
 
 </style>

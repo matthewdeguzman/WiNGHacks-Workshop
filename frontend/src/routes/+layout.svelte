@@ -16,6 +16,7 @@
 		display: grid;
 		grid-template-columns: 100%;
 		justify-items: center;
+		padding: 0 1rem;
 	}
 
 	.content {
