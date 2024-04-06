@@ -2,7 +2,32 @@
 
 Creating our own RAG chat-bot with LangChain and HuggingFace.
 
-\<Upload video once rate limit goes away...\>
+## Prerequisites
+
+1. Please [download and install docker](https://www.docker.com/products/docker-desktop/) then
+clone this repository.
+
+2. Create a [HuggingFace account](https://huggingface.co/login)
+
+3. Create [an api token](https://huggingface.co/settings/tokens) on HuggingFace and copy the key
+
+4. Create a `.env` file in the the `/backend` directory of the project and add the following:
+```bash
+HF_API_KEY=<Your HuggingFace API Key>
+```
+where `<Your HuggingFace API Key>` is your HuggingFace API key.
+
+5. If you are on a Mac/Unix system run:
+
+```bash
+sudo docker-compose up --build
+```
+
+If you are on Windows, you may need to run Powershell as an administrator and run:
+
+```bash
+docker-compose up --build
+```
 
 ## What is RAG (Retrieval Augmented Generation)?
 
