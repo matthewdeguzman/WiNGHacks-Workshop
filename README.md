@@ -29,7 +29,9 @@ installed yet
 - On Mac/Unix based systems, run `export PYTHONPATH=src/`
 - On Windows, run `setx PYTHONPATH "src/"`
 
-5. Run the backend: `python src/main.py`
+5. Run the backend in two ways
+- `python src/main.py` If you run it with this command, then you must restart the server to reflect changes made in the backend
+- `uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload` This should automatically refresh when changes are made
 
 ## Running it on Docker
 
