@@ -10,7 +10,6 @@
 <select name="llm" id="llm" class="llm-select" bind:this={selectElement} on:change={updateSelection}>
 	<option value="Mushwoom">Mushwoom</option>
 	<option value="William">William</option>
-	<option value="Fry">Fry</option>
 </select>
 
 <style>
