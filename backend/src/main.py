@@ -12,7 +12,7 @@ from dotenv import dotenv_values
 
 from load import parse_and_split
 
-config = dotenv_values("../.env")
+config = dotenv_values(".env")
 app = FastAPI()
 
 origins = [
