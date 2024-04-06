@@ -1,8 +1,37 @@
 # WiNG Hacks Workshop
 
-Creating our own RAG chat-bot with LangChain and HuggingFace.
+Creating our own RAG chat-bot with LangChain and HuggingFace. Check out the demo [here](https://youtube.com/shorts/KNcCWLvu5uk?si=1cwHxrw-d81-m9jz).
 
-## Prerequisites
+## Running it Locally
+
+[Download](https://nodejs.org/en/download) the latest stable version of Node.js if you don't have it
+installed yet
+
+### Starting the frontend
+
+1. From the `frontend/` directory, run `npm install` to install the dependencies
+
+2. Run `npm run dev` to run the front-end locally. You can visit 
+[http://localhost:5173](http://localhost:5173) to view the frontend now.
+
+### Starting the backend
+
+1. In another terminal, from the `backend/` directory, create a virtual environment by running `python -m venv venv`
+
+2. Enter the virtual environment
+ - On Mac/Unix systems: `source venv/bin/activate`
+ - On Powershell: `venv\Scripts\Activate.ps1`
+ - on cmd.exe: `venv\Scripts\activate.bat`
+
+3. Install the dependencies: `pip install -r requirements.txt`
+
+3. Set the PYTHONPATH variable
+- On Mac/Unix based systems, run `export PYTHONPATH=src/`
+- On Windows, run `setx PYTHONPATH "src/"`
+
+5. Run the backend: `python src/main.py`
+
+## Running it on Docker
 
 1. Please [download and install docker](https://www.docker.com/products/docker-desktop/) then
 clone this repository.
