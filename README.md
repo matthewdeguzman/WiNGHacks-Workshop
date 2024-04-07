@@ -44,7 +44,7 @@ clone this repository.
 
 4. Create a `.env` file in the the `/backend` directory of the project and add the following:
 ```bash
-HF_API_KEY=<Your HuggingFace API Key>
+HF_API_TOKEN=<Your HuggingFace API Key>
 ```
 where `<Your HuggingFace API Key>` is your HuggingFace API key.
 
